@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>What are LightCurveFile objects? &mdash; lightkurve 1.0b13 documentation</title>
+  <title>What are LightCurveFile objects? &mdash; lightkurve 1.0b21 documentation</title>
   
 
   
@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Science with lightkurve" href="section2.html" />
+    <link rel="next" title="What is the Periodogram class?" href="1.06-using-the-periodogram-class.html" />
     <link rel="prev" title="What are LightCurve objects?" href="1.03-what-are-lightcurves.html" /> 
 
   
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                1.0b13
+                1.0b21
               </div>
             
           
@@ -97,6 +97,7 @@
 <li class="toctree-l2"><a class="reference internal" href="1.02-target-pixel-files.html">What are TargetPixelFile objects?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1.03-what-are-lightcurves.html">What are LightCurve objects?</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">What are LightCurveFile objects?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1.06-using-the-periodogram-class.html">What is the Periodogram class?</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="section2.html">Science with lightkurve</a></li>
@@ -106,6 +107,7 @@
 <p class="caption"><span class="caption-text">About lightkurve</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing and reporting issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer.html">Developer documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing and acknowledging lightkurve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../other_software.html">Other software</a></li>
 </ul>
@@ -380,26 +382,18 @@ have been removed from this data using so-called Cotrending Basis
 Vectors (CBVs). PDCSAP flux is usually slightly cleaner data than the
 SAP flux and will have fewer long term trends.</p>
 <p>We can read in a light curve file from the Kepler mission using
-<code class="docutils literal notranslate"><span class="pre">KeplerLightCurveFile</span></code>. We can use the same <code class="docutils literal notranslate"><span class="pre">from_archive</span></code> function
-as before.</p>
-<div class="nbinput docutils container">
+<code class="docutils literal notranslate"><span class="pre">KeplerLightCurveFile</span></code>. We can use the <code class="docutils literal notranslate"><span class="pre">search_lightcurvefile()</span></code>
+function to fetch them from the data archive:</p>
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
 <span></span>In [1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">lightkurve</span> <span class="k">import</span> <span class="n">KeplerLightCurveFile</span>
-<span class="n">lcf</span> <span class="o">=</span> <span class="n">KeplerLightCurveFile</span><span class="o">.</span><span class="n">from_archive</span><span class="p">(</span><span class="mi">6922244</span><span class="p">,</span> <span class="n">quarter</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span></span><span class="kn">from</span> <span class="nn">lightkurve</span> <span class="k">import</span> <span class="n">search_lightcurvefile</span>
+<span class="n">lcf</span> <span class="o">=</span> <span class="n">search_lightcurvefile</span><span class="p">(</span><span class="mi">6922244</span><span class="p">,</span> <span class="n">quarter</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Downloading URL https://mast.stsci.edu/api/v0/download/file?uri=mast:Kepler/url/missions/kepler/lightcurves/0069/006922244/kplr006922244-2010078095331_llc.fits to ./mastDownload/Kepler/kplr006922244_lc_Q111111111111111111/kplr006922244-2010078095331_llc.fits ... [Done]
-</pre></div></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">lcf</span></code> is now a <code class="docutils literal notranslate"><span class="pre">KeplerLightCurveFile</span></code> object. In this case it
 contains two <code class="docutils literal notranslate"><span class="pre">KeplerLightCurve</span></code> objects, one for the SAP flux and one
@@ -407,7 +401,7 @@ for the PDCSAP flux. The <code class="docutils literal notranslate"><span class=
 object will plot up both of these.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [3]:
+<span></span>In [2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -427,7 +421,7 @@ we must choose which type of flux we want to work with. Let’s choose
 PDCSAP flux:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [4]:
+<span></span>In [3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -441,7 +435,7 @@ PDCSAP flux:</p>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [5]:
+<span></span>In [4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -451,17 +445,17 @@ PDCSAP flux:</p>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[5]:
+<span></span>Out[4]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>KeplerLightCurveFile(KIC: 6922244)
+<span></span>KeplerLightCurveFile(ID: 6922244)
 </pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [6]:
+<span></span>In [5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -471,11 +465,11 @@ PDCSAP flux:</p>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[6]:
+<span></span>Out[5]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>KeplerLightCurve(KIC: 6922244)
+<span></span>KeplerLightCurve(ID: 6922244)
 </pre></div>
 </div>
 </div>
@@ -486,7 +480,7 @@ tutorial</a>.
 For example you can check the meta data and the CDPP noise metric:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [7]:
+<span></span>In [6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -496,7 +490,7 @@ For example you can check the meta data and the CDPP noise metric:</p>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[7]:
+<span></span>Out[6]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -506,7 +500,7 @@ For example you can check the meta data and the CDPP noise metric:</p>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [8]:
+<span></span>In [7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -516,7 +510,7 @@ For example you can check the meta data and the CDPP noise metric:</p>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[8]:
+<span></span>Out[7]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -526,21 +520,21 @@ For example you can check the meta data and the CDPP noise metric:</p>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [9]:
+<span></span>In [8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pdcsap</span><span class="o">.</span><span class="n">cdpp</span><span class="p">()</span>
+<span></span><span class="n">pdcsap</span><span class="o">.</span><span class="n">estimate_cdpp</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[9]:
+<span></span>Out[8]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>407.9620564266182
+<span></span>408.6913767647017
 </pre></div>
 </div>
 </div>
@@ -554,7 +548,7 @@ For example you can check the meta data and the CDPP noise metric:</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="section2.html" class="btn btn-neutral float-right" title="Science with lightkurve" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="1.06-using-the-periodogram-class.html" class="btn btn-neutral float-right" title="What is the Periodogram class?" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="1.03-what-are-lightcurves.html" class="btn btn-neutral" title="What are LightCurve objects?" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -566,7 +560,7 @@ For example you can check the meta data and the CDPP noise metric:</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright lightkurve developers and contributors.
+        &copy; Copyright lightkurve developers and contributors
 
     </p>
   </div>
@@ -585,21 +579,24 @@ For example you can check the meta data and the CDPP noise metric:</p>
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'1.0b13',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'1.0b21',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 

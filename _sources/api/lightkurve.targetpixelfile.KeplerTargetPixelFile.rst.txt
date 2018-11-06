@@ -21,7 +21,7 @@ KeplerTargetPixelFile
       ~KeplerTargetPixelFile.flux_bkg_err
       ~KeplerTargetPixelFile.flux_err
       ~KeplerTargetPixelFile.hdu
-      ~KeplerTargetPixelFile.keplerid
+      ~KeplerTargetPixelFile.header
       ~KeplerTargetPixelFile.mission
       ~KeplerTargetPixelFile.module
       ~KeplerTargetPixelFile.nan_time_mask
@@ -43,15 +43,21 @@ KeplerTargetPixelFile
    .. autosummary::
 
       ~KeplerTargetPixelFile.centroids
+      ~KeplerTargetPixelFile.create_threshold_mask
+      ~KeplerTargetPixelFile.estimate_centroids
+      ~KeplerTargetPixelFile.extract_aperture_photometry
+      ~KeplerTargetPixelFile.extract_prf_photometry
       ~KeplerTargetPixelFile.from_archive
+      ~KeplerTargetPixelFile.from_fits
       ~KeplerTargetPixelFile.from_fits_images
       ~KeplerTargetPixelFile.get_bkg_lightcurve
       ~KeplerTargetPixelFile.get_coordinates
+      ~KeplerTargetPixelFile.get_model
       ~KeplerTargetPixelFile.get_prf_model
-      ~KeplerTargetPixelFile.header
       ~KeplerTargetPixelFile.interact
       ~KeplerTargetPixelFile.plot
-      ~KeplerTargetPixelFile.properties
+      ~KeplerTargetPixelFile.prf_lightcurve
+      ~KeplerTargetPixelFile.show_properties
       ~KeplerTargetPixelFile.to_fits
       ~KeplerTargetPixelFile.to_lightcurve
 
@@ -68,7 +74,7 @@ KeplerTargetPixelFile
    .. autoattribute:: flux_bkg_err
    .. autoattribute:: flux_err
    .. autoattribute:: hdu
-   .. autoattribute:: keplerid
+   .. autoattribute:: header
    .. autoattribute:: mission
    .. autoattribute:: module
    .. autoattribute:: nan_time_mask
@@ -88,14 +94,20 @@ KeplerTargetPixelFile
    .. rubric:: Methods Documentation
 
    .. automethod:: centroids
+   .. automethod:: create_threshold_mask
+   .. automethod:: estimate_centroids
+   .. automethod:: extract_aperture_photometry
+   .. automethod:: extract_prf_photometry
    .. automethod:: from_archive
+   .. automethod:: from_fits
    .. automethod:: from_fits_images
    .. automethod:: get_bkg_lightcurve
    .. automethod:: get_coordinates
+   .. automethod:: get_model
    .. automethod:: get_prf_model
-   .. automethod:: header
    .. automethod:: interact
    .. automethod:: plot
-   .. automethod:: properties
+   .. automethod:: prf_lightcurve
+   .. automethod:: show_properties
    .. automethod:: to_fits
    .. automethod:: to_lightcurve

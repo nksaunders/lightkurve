@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>SFFCorrector &mdash; lightkurve 1.0b13 documentation</title>
+  <title>SFFCorrector &mdash; lightkurve 1.0b21 documentation</title>
   
 
   
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                1.0b13
+                1.0b21
               </div>
             
           
@@ -90,9 +90,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">API documentation</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="targetpixelfile.html">TargetPixelFile classes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lightcurve.html">LightCurve classes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lightcurvefile.html">LightCurveFile classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="targetpixelfile.html">TargetPixelFile classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="search.html">Data search functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="periodogram.html">Periodogram classes</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="correctors.html">Systematics correction classes</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="correctors.html#classes">Classes</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="lightkurve.correctors.KeplerCBVCorrector.html">KeplerCBVCorrector</a></li>
@@ -117,6 +119,7 @@
 <p class="caption"><span class="caption-text">About lightkurve</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing and reporting issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer.html">Developer documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing and acknowledging lightkurve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../other_software.html">Other software</a></li>
 </ul>
@@ -249,8 +252,8 @@ eigenvectors of the centroid covariance matrix</li>
 <tr class="row-even"><td><a class="reference internal" href="#lightkurve.correctors.SFFCorrector.correct" title="lightkurve.correctors.SFFCorrector.correct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correct</span></code></a>(time,&nbsp;flux,&nbsp;centroid_col,&nbsp;centroid_row)</td>
 <td>Returns a systematics-corrected LightCurve.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#lightkurve.correctors.SFFCorrector.fit_bspline" title="lightkurve.correctors.SFFCorrector.fit_bspline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_bspline</span></code></a>(time,&nbsp;flux[,&nbsp;s])</td>
-<td>s describes the “smoothness” of the spline</td>
+<tr class="row-odd"><td><a class="reference internal" href="#lightkurve.correctors.SFFCorrector.fit_bspline" title="lightkurve.correctors.SFFCorrector.fit_bspline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_bspline</span></code></a>(time,&nbsp;flux[,&nbsp;knotspacing])</td>
+<td></td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#lightkurve.correctors.SFFCorrector.rotate_centroids" title="lightkurve.correctors.SFFCorrector.rotate_centroids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_centroids</span></code></a>(centroid_col,&nbsp;centroid_row)</td>
 <td>Rotate the coordinate frame of the (col, row) centroids to a new (x,y) frame in which the dominant motion of the spacecraft is aligned with the x axis.</td>
@@ -304,7 +307,7 @@ independently. However, this is not implemented yet in this version.</p>
 
 <dl class="method">
 <dt id="lightkurve.correctors.SFFCorrector.correct">
-<code class="descname">correct</code><span class="sig-paren">(</span><em>time</em>, <em>flux</em>, <em>centroid_col</em>, <em>centroid_row</em>, <em>polyorder=5</em>, <em>niters=3</em>, <em>bins=15</em>, <em>windows=1</em>, <em>sigma_1=3.0</em>, <em>sigma_2=5.0</em>, <em>restore_trend=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lightkurve/correctors.html#SFFCorrector.correct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lightkurve.correctors.SFFCorrector.correct" title="Permalink to this definition">¶</a></dt>
+<code class="descname">correct</code><span class="sig-paren">(</span><em>time</em>, <em>flux</em>, <em>centroid_col</em>, <em>centroid_row</em>, <em>polyorder=5</em>, <em>niters=3</em>, <em>bins=15</em>, <em>windows=10</em>, <em>sigma_1=3.0</em>, <em>sigma_2=5.0</em>, <em>restore_trend=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lightkurve/correctors.html#SFFCorrector.correct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lightkurve.correctors.SFFCorrector.correct" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a systematics-corrected LightCurve.</p>
 <p>Note that it is assumed that time and flux do not contain NaNs.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -360,9 +363,8 @@ lightcurve.</p>
 
 <dl class="method">
 <dt id="lightkurve.correctors.SFFCorrector.fit_bspline">
-<code class="descname">fit_bspline</code><span class="sig-paren">(</span><em>time</em>, <em>flux</em>, <em>s=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lightkurve/correctors.html#SFFCorrector.fit_bspline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lightkurve.correctors.SFFCorrector.fit_bspline" title="Permalink to this definition">¶</a></dt>
-<dd><p>s describes the “smoothness” of the spline</p>
-</dd></dl>
+<code class="descname">fit_bspline</code><span class="sig-paren">(</span><em>time</em>, <em>flux</em>, <em>knotspacing=1.5</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lightkurve/correctors.html#SFFCorrector.fit_bspline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lightkurve.correctors.SFFCorrector.fit_bspline" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="lightkurve.correctors.SFFCorrector.rotate_centroids">
@@ -397,7 +399,7 @@ that describes the motion.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright lightkurve developers and contributors.
+        &copy; Copyright lightkurve developers and contributors
 
     </p>
   </div>
@@ -416,21 +418,24 @@ that describes the motion.</p>
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'1.0b13',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'1.0b21',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 

@@ -17,7 +17,6 @@ KeplerLightCurveFile
       ~KeplerLightCurveFile.campaign
       ~KeplerLightCurveFile.channel
       ~KeplerLightCurveFile.dec
-      ~KeplerLightCurveFile.keplerid
       ~KeplerLightCurveFile.mission
       ~KeplerLightCurveFile.obsmode
       ~KeplerLightCurveFile.pos_corr1
@@ -32,6 +31,7 @@ KeplerLightCurveFile
 
       ~KeplerLightCurveFile.compute_cotrended_lightcurve
       ~KeplerLightCurveFile.from_archive
+      ~KeplerLightCurveFile.from_fits
       ~KeplerLightCurveFile.get_lightcurve
       ~KeplerLightCurveFile.header
       ~KeplerLightCurveFile.plot
@@ -45,7 +45,6 @@ KeplerLightCurveFile
    .. autoattribute:: campaign
    .. autoattribute:: channel
    .. autoattribute:: dec
-   .. autoattribute:: keplerid
    .. autoattribute:: mission
    .. autoattribute:: obsmode
    .. autoattribute:: pos_corr1
@@ -58,6 +57,7 @@ KeplerLightCurveFile
 
    .. automethod:: compute_cotrended_lightcurve
    .. automethod:: from_archive
+   .. automethod:: from_fits
    .. automethod:: get_lightcurve
    .. automethod:: header
    .. automethod:: plot

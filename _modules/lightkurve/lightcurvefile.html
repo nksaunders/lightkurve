@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>lightkurve.lightcurvefile &mdash; lightkurve 1.0b13 documentation</title>
+  <title>lightkurve.lightcurvefile &mdash; lightkurve 1.0b21 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.0b13
+                1.0b21
               </div>
             
           
@@ -99,6 +99,7 @@
 <p class="caption"><span class="caption-text">About lightkurve</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing and reporting issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer.html">Developer documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../citing.html">Citing and acknowledging lightkurve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../other_software.html">Other software</a></li>
 </ul>
@@ -170,15 +171,18 @@
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
 <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
-
 <span class="kn">from</span> <span class="nn">astropy.io</span> <span class="k">import</span> <span class="n">fits</span> <span class="k">as</span> <span class="n">pyfits</span>
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="p">(</span><span class="n">bkjd_to_astropy_time</span><span class="p">,</span> <span class="n">KeplerQualityFlags</span><span class="p">,</span> <span class="n">TessQualityFlags</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="p">(</span><span class="n">bkjd_to_astropy_time</span><span class="p">,</span> <span class="n">KeplerQualityFlags</span><span class="p">,</span> <span class="n">TessQualityFlags</span><span class="p">,</span>
+                    <span class="n">LightkurveWarning</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.mast</span> <span class="k">import</span> <span class="n">download_kepler_products</span>
 
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">MPLSTYLE</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;KeplerLightCurveFile&#39;</span><span class="p">,</span> <span class="s1">&#39;TessLightCurveFile&#39;</span><span class="p">]</span>
 
@@ -190,14 +194,19 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    path : str</span>
+<span class="sd">    path : str or `astropy.io.fits.HDUList` object</span>
 <span class="sd">        Local path or remote url of a lightcurve FITS file.</span>
+<span class="sd">        Also accepts a FITS file object already opened using AstroPy.</span>
 <span class="sd">    kwargs : dict</span>
 <span class="sd">        Keyword arguments to be passed to astropy.io.fits.open.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">hdu</span> <span class="o">=</span> <span class="n">pyfits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">pyfits</span><span class="o">.</span><span class="n">HDUList</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hdu</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hdu</span> <span class="o">=</span> <span class="n">pyfits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Header of the object at extension `ext`&quot;&quot;&quot;</span>
@@ -261,7 +270,7 @@
         <span class="n">types</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">types</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="s1">&#39;ERR&#39;</span> <span class="ow">in</span> <span class="n">n</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">types</span>
 
-    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flux_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;fast&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flux_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;lightkurve&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Plot all the light curves contained in this light curve file.</span>
 
 <span class="sd">        Parameters</span>
@@ -275,8 +284,8 @@
 <span class="sd">            Dictionary of keyword arguments to be passed to</span>
 <span class="sd">            `KeplerLightCurve.plot()`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;fast&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;fast&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mpl</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">available</span><span class="p">):</span>
-            <span class="n">style</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span>
+        <span class="k">if</span> <span class="n">style</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">style</span> <span class="o">==</span> <span class="s1">&#39;lightkurve&#39;</span><span class="p">:</span>
+            <span class="n">style</span> <span class="o">=</span> <span class="n">MPLSTYLE</span>
         <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">style</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="s1">&#39;ax&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">):</span>
                 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -319,24 +328,19 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">quality_bitmask</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">KeplerLightCurveFile</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">quality_bitmask</span> <span class="o">=</span> <span class="n">quality_bitmask</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">quality_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quality_mask</span><span class="p">(</span><span class="n">quality_bitmask</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quality_mask</span> <span class="o">=</span> <span class="n">KeplerQualityFlags</span><span class="o">.</span><span class="n">create_quality_mask</span><span class="p">(</span>
+                                <span class="n">quality_array</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;SAP_QUALITY&#39;</span><span class="p">],</span>
+                                <span class="n">bitmask</span><span class="o">=</span><span class="n">quality_bitmask</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">targetid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">()[</span><span class="s1">&#39;KEPLERID&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">targetid</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="KeplerLightCurveFile.from_archive"><a class="viewcode-back" href="../../api/lightkurve.lightcurvefile.KeplerLightCurveFile.html#lightkurve.lightcurvefile.KeplerLightCurveFile.from_archive">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_archive</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">cadence</span><span class="o">=</span><span class="s1">&#39;long&#39;</span><span class="p">,</span> <span class="n">quarter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                     <span class="n">campaign</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">targetlimit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                     <span class="n">quality_bitmask</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Fetches a LightCurveFile (or list thereof) from the data archive at MAST.</span>
-
-<span class="sd">        If a target was observed across multiple quarters or campaigns, a</span>
-<span class="sd">        list of `LightCurveFile` objects will only be returned if the string</span>
-<span class="sd">        &#39;all&#39; is passed to `quarter` or `campaign`.  Alternatively, a list of</span>
-<span class="sd">        numbers can be pased to these arguments.</span>
-
-<span class="sd">        An `ArchiveError` will be raised if no (unique) LightCurveFile</span>
-<span class="sd">        can be found.</span>
-
-<span class="sd">        If `targetlimit` is set to more than one (or None) then will return a list</span>
-<span class="sd">        of `KeplerLightCurveFile`. Will only return hits within the specified radius.</span>
+                     <span class="n">campaign</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">quality_bitmask</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;WARNING: THIS FUNCTION IS DEPRECATED AND WILL BE REMOVED VERY SOON.</span>
+<span class="sd">        Use `lightkurve.search_lightcurvefile()` instead.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -350,12 +354,6 @@
 <span class="sd">            For Kepler&#39;s prime mission, there are three short-cadence</span>
 <span class="sd">            LightCurveFile objects for each quarter, each covering one month.</span>
 <span class="sd">            Hence, if cadence=&#39;short&#39; you need to specify month=1, 2, or 3.</span>
-<span class="sd">        radius : float</span>
-<span class="sd">            Search radius in arcseconds. Default is 1 arcsecond.</span>
-<span class="sd">        targetlimit : None or int</span>
-<span class="sd">            If multiple targets are present within `radius`, limit the number</span>
-<span class="sd">            of returned LightCurveFile objects to `targetlimit`.</span>
-<span class="sd">            If `None`, no limit is applied.</span>
 <span class="sd">        quality_bitmask : str or int</span>
 <span class="sd">            Bitmask (integer) which identifies the quality flag bitmask that should</span>
 <span class="sd">            be used to mask out bad cadences. If a string is passed, it has the</span>
@@ -377,6 +375,10 @@
 <span class="sd">        -------</span>
 <span class="sd">        lcf : KeplerLightCurveFile object or list of KeplerLightCurveFile objects</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;`LightCurveFile.from_archive()` is deprecated and will be removed soon, &quot;</span>
+                      <span class="s2">&quot;please use `lightkurve.search_lightcurvefile()` instead.&quot;</span><span class="p">,</span>
+                      <span class="n">LightkurveWarning</span><span class="p">)</span>
+
         <span class="c1"># Be tolerant if a direct path or url is passed to this function by accident</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">):</span>
             <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Warning: from_archive() is not intended to accept a &#39;</span>
@@ -386,7 +388,7 @@
             <span class="n">path</span> <span class="o">=</span> <span class="n">download_kepler_products</span><span class="p">(</span>
                 <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">filetype</span><span class="o">=</span><span class="s1">&#39;Lightcurve&#39;</span><span class="p">,</span> <span class="n">cadence</span><span class="o">=</span><span class="n">cadence</span><span class="p">,</span>
                 <span class="n">quarter</span><span class="o">=</span><span class="n">quarter</span><span class="p">,</span> <span class="n">campaign</span><span class="o">=</span><span class="n">campaign</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">,</span>
-                <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">targetlimit</span><span class="o">=</span><span class="n">targetlimit</span><span class="p">)</span>
+                <span class="n">searchtype</span><span class="o">=</span><span class="s1">&#39;single&#39;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">targetlimit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">KeplerLightCurveFile</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                                         <span class="n">quality_bitmask</span><span class="o">=</span><span class="n">quality_bitmask</span><span class="p">,</span>
@@ -395,32 +397,7 @@
                 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">]</span></div>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mission</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span><span class="p">(</span><span class="s1">&#39;KeplerLightCurveFile(ID: </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keplerid</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mission</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;kepler&#39;</span><span class="p">:</span>
-            <span class="k">return</span><span class="p">(</span><span class="s1">&#39;KeplerLightCurveFile(KIC: </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keplerid</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mission</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;k2&#39;</span><span class="p">:</span>
-            <span class="k">return</span><span class="p">(</span><span class="s1">&#39;KeplerLightCurveFile(EPIC: </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keplerid</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">_quality_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bitmask</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns a boolean mask which flags all good-quality cadences.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        bitmask : str or int</span>
-<span class="sd">            Bitmask. See ref. [1], table 2-3.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        boolean_mask : array of bool</span>
-<span class="sd">            Boolean array in which `True` means the data is of good quality.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">bitmask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;TIME&#39;</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bitmask</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">bitmask</span> <span class="o">=</span> <span class="n">KeplerQualityFlags</span><span class="o">.</span><span class="n">OPTIONS</span><span class="p">[</span><span class="n">bitmask</span><span class="p">]</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;SAP_QUALITY&#39;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">bitmask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="k">return</span><span class="p">(</span><span class="s1">&#39;KeplerLightCurveFile(ID: </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targetid</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">astropy_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -446,7 +423,8 @@
                 <span class="n">quarter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">quarter</span><span class="p">,</span>
                 <span class="n">mission</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mission</span><span class="p">,</span>
                 <span class="n">cadenceno</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cadenceno</span><span class="p">,</span>
-                <span class="n">keplerid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">keplerid</span><span class="p">,</span>
+                <span class="n">targetid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">targetid</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;OBJECT&#39;</span><span class="p">],</span>
                 <span class="n">ra</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ra</span><span class="p">,</span>
                 <span class="n">dec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dec</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -457,14 +435,6 @@
     <span class="k">def</span> <span class="nf">channel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Kepler CCD channel number. (&#39;CHANNEL&#39; header keyword)&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="n">ext</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="s1">&#39;CHANNEL&#39;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">keplerid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="n">ext</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="s1">&#39;KEPLERID&#39;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">targetid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">keplerid</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">obsmode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -555,53 +525,41 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">quality_bitmask</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">TessLightCurveFile</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">quality_bitmask</span> <span class="o">=</span> <span class="n">quality_bitmask</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">quality_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quality_mask</span><span class="p">(</span><span class="n">quality_bitmask</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quality_mask</span> <span class="o">=</span> <span class="n">TessQualityFlags</span><span class="o">.</span><span class="n">create_quality_mask</span><span class="p">(</span>
+                                <span class="n">quality_array</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;QUALITY&#39;</span><span class="p">],</span>
+                                <span class="n">bitmask</span><span class="o">=</span><span class="n">quality_bitmask</span><span class="p">)</span>
+        <span class="c1"># Early TESS releases had cadences with time=NaN (i.e. missing data)</span>
+        <span class="c1"># which were not flagged by a QUALITY flag yet; the line below prevents</span>
+        <span class="c1"># these cadences from being used. They would break most methods!</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quality_mask</span> <span class="o">&amp;=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;TIME&#39;</span><span class="p">])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">targetid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">()[</span><span class="s1">&#39;TICID&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">targetid</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span><span class="p">(</span><span class="s1">&#39;TessLightCurveFile(TICID: </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ticid</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">_quality_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bitmask</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns a boolean mask which flags all good-quality cadences.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        bitmask : str or int</span>
-<span class="sd">            Bitmask. See ref. [1], table 2-3.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        boolean_mask : array of bool</span>
-<span class="sd">            Boolean array in which `True` means the data is of good quality.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">bitmask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;TIME&#39;</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bitmask</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">bitmask</span> <span class="o">=</span> <span class="n">TessQualityFlags</span><span class="o">.</span><span class="n">OPTIONS</span><span class="p">[</span><span class="n">bitmask</span><span class="p">]</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;QUALITY&#39;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">bitmask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ticid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="n">ext</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="s1">&#39;TICID&#39;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">targetid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ticid</span>
+        <span class="k">return</span><span class="p">(</span><span class="s1">&#39;TessLightCurveFile(TICID: </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targetid</span><span class="p">))</span>
 
 <div class="viewcode-block" id="TessLightCurveFile.get_lightcurve"><a class="viewcode-back" href="../../api/lightkurve.lightcurvefile.TessLightCurveFile.html#lightkurve.lightcurvefile.TessLightCurveFile.get_lightcurve">[docs]</a>    <span class="k">def</span> <span class="nf">get_lightcurve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flux_type</span><span class="p">,</span> <span class="n">centroid_type</span><span class="o">=</span><span class="s1">&#39;MOM_CENTR&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">flux_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flux_types</span><span class="p">():</span>
-            <span class="c1"># We did not import lightcurve at the top to prevent circular imports</span>
+            <span class="c1"># We did not import TessLightCurve at the top to prevent circular imports</span>
             <span class="kn">from</span> <span class="nn">.lightcurve</span> <span class="k">import</span> <span class="n">TessLightCurve</span>
             <span class="k">return</span> <span class="n">TessLightCurve</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;TIME&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">quality_mask</span><span class="p">],</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">flux_type</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">quality_mask</span><span class="p">],</span>
+                <span class="n">time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;TIME&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">quality_mask</span><span class="p">],</span>
+                <span class="n">time_format</span><span class="o">=</span><span class="s1">&#39;btjd&#39;</span><span class="p">,</span>
+                <span class="n">time_scale</span><span class="o">=</span><span class="s1">&#39;tdb&#39;</span><span class="p">,</span>
+                <span class="n">flux</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">flux_type</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">quality_mask</span><span class="p">],</span>
                 <span class="n">flux_err</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">flux_type</span> <span class="o">+</span> <span class="s2">&quot;_ERR&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">quality_mask</span><span class="p">],</span>
                 <span class="n">centroid_col</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">centroid_type</span> <span class="o">+</span> <span class="s2">&quot;1&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">quality_mask</span><span class="p">],</span>
                 <span class="n">centroid_row</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">centroid_type</span> <span class="o">+</span> <span class="s2">&quot;2&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">quality_mask</span><span class="p">],</span>
                 <span class="n">quality</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;QUALITY&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">quality_mask</span><span class="p">],</span>
                 <span class="n">quality_bitmask</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">quality_bitmask</span><span class="p">,</span>
                 <span class="n">cadenceno</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cadenceno</span><span class="p">,</span>
-                <span class="n">ticid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ticid</span><span class="p">)</span></div></div>
+                <span class="n">targetid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">targetid</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hdu</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;OBJECT&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> is not a valid flux type. Available types are: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span>
+                           <span class="nb">format</span><span class="p">(</span><span class="n">flux_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flux_types</span><span class="p">))</span></div></div>
 </pre></div>
 
            </div>
@@ -614,7 +572,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright lightkurve developers and contributors.
+        &copy; Copyright lightkurve developers and contributors
 
     </p>
   </div>
@@ -633,21 +591,24 @@
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../',
-            VERSION:'1.0b13',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../../',
+              VERSION:'1.0b21',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 

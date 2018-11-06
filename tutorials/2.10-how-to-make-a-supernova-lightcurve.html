@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>How to make a supernova lightcurve? &mdash; lightkurve 1.0b13 documentation</title>
+  <title>How to make a supernova lightcurve? &mdash; lightkurve 1.0b21 documentation</title>
   
 
   
@@ -29,7 +29,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Extracting lightcurves" href="section3.html" />
-    <link rel="prev" title="How to use lightkurve for asteroseismology?" href="2.09-how-to-use-lightkurve-for-asteroseismology.html" /> 
+    <link rel="prev" title="How to use lightkurve for asteroseismology" href="2.09-how-to-use-lightkurve-for-asteroseismology.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                1.0b13
+                1.0b21
               </div>
             
           
@@ -96,7 +96,8 @@
 <li class="toctree-l1"><a class="reference internal" href="section1.html">Introduction to lightkurve</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="section2.html">Science with lightkurve</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="2.02-recover-a-planet.html">How to recover a known planet in Kepler data?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="2.09-how-to-use-lightkurve-for-asteroseismology.html">How to use lightkurve for asteroseismology?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-recover-the-first-tess-candidate.html">How to recover the first TESS planet candidate with <em>Lightkurve</em>?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2.09-how-to-use-lightkurve-for-asteroseismology.html">How to use lightkurve for asteroseismology</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">How to make a supernova lightcurve?</a></li>
 </ul>
 </li>
@@ -106,6 +107,7 @@
 <p class="caption"><span class="caption-text">About lightkurve</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing and reporting issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer.html">Developer documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing and acknowledging lightkurve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../other_software.html">Other software</a></li>
 </ul>
@@ -386,29 +388,29 @@ attributable to the host galaxy</li>
 the so-called <em>Fast-Evolving Luminous Transients</em> or <strong>FELT</strong>s. These
 transients rise and fall within a mere few days, much shorter than
 conventional supernovae, which can last hundreds of days. The discovery
-of <strong>KSN2015k</strong> was recently reported by <a class="reference external" href="https://www.nature.com/articles/s41550-018-0423-2">Rest et
-al.&nbsp;2018</a> and
+of <strong>KSN2015k</strong> was recently reported by <a class="reference external" href="https://www.nature.com/articles/s41550-018-0423-2">Rest et al.
+2018</a> and
 summarized in at least two press releases from
 <a class="reference external" href="http://hubblesite.org/news_release/news/2018-18">STSci</a> and
 <a class="reference external" href="https://www.jpl.nasa.gov/news/news.php?feature=7086">JPL</a>.</p>
 <p>The EPIC ID for <code class="docutils literal notranslate"><span class="pre">KSN2015k</span></code>’s host galaxy is <strong>212593538</strong>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [1]:
+<span></span>In [2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="o">%</span><span class="k">matplotlib</span> inline
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">lightkurve</span> <span class="k">import</span> <span class="n">KeplerTargetPixelFile</span>
-<span class="n">tpf</span> <span class="o">=</span> <span class="n">KeplerTargetPixelFile</span><span class="o">.</span><span class="n">from_archive</span><span class="p">(</span><span class="mi">212593538</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">lightkurve</span> <span class="k">import</span> <span class="n">search_targetpixelfile</span>
+<span class="n">tpf</span> <span class="o">=</span> <span class="n">search_targetpixelfile</span><span class="p">(</span><span class="mi">212593538</span><span class="p">,</span> <span class="n">campaign</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
 <span class="n">tpf</span><span class="o">.</span><span class="n">shape</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[1]:
+<span></span>Out[2]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -420,7 +422,7 @@ summarized in at least two press releases from
 stamp image.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [2]:
+<span></span>In [3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -447,7 +449,7 @@ Irregular boundaries are a common space-saving strategy for the distant
 Kepler telescope.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [3]:
+<span></span>In [4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -458,7 +460,7 @@ Kepler telescope.</p>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[3]:
+<span></span>Out[4]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -472,7 +474,7 @@ sharp discontinuities in the time series that arise from spurious cosmic
 rays, not our astrophysical transient of interest.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [4]:
+<span></span>In [5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -484,11 +486,11 @@ rays, not our astrophysical transient of interest.</p>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [5]:
+<span></span>In [6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">lc_clean</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
+<span></span><span class="n">lc_clean</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -513,7 +515,7 @@ column 830, row 231. Furthermore, it looks like the flux drops off
 significantly in the first and last columns.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [6]:
+<span></span>In [9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -529,7 +531,7 @@ size <span class="math notranslate nohighlight">\(N_{\rm aper}\)</span> pixels, 
 the (spatially-flat) background level per pixel, in each cadence.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [7]:
+<span></span>In [10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -542,7 +544,7 @@ the (spatially-flat) background level per pixel, in each cadence.</p>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [8]:
+<span></span>In [11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -553,7 +555,7 @@ the (spatially-flat) background level per pixel, in each cadence.</p>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[8]:
+<span></span>Out[11]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -563,7 +565,7 @@ the (spatially-flat) background level per pixel, in each cadence.</p>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [9]:
+<span></span>In [12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -589,7 +591,7 @@ the (spatially-flat) background level per pixel, in each cadence.</p>
 <p>Checks out. Let’s apply the equation above:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [10]:
+<span></span>In [13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -600,7 +602,7 @@ the (spatially-flat) background level per pixel, in each cadence.</p>
 </div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [11]:
+<span></span>In [14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -611,7 +613,7 @@ the (spatially-flat) background level per pixel, in each cadence.</p>
 <p>Drop the previously-identified spurious cadences.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [12]:
+<span></span>In [15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -621,11 +623,11 @@ the (spatially-flat) background level per pixel, in each cadence.</p>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [13]:
+<span></span>In [19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">lc_net</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+<span></span><span class="n">lc_net</span><span class="o">.</span><span class="n">errorbar</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -642,9 +644,9 @@ wiggles.</p>
 back-and-forth, a common instrumental artifact in K2 data. Let’s attempt
 to mitigate the spacecraft motion with the SFF algorithm, knowing that
 it might delete some of the astrophysical signal of interest.</p>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [14]:
+<span></span>In [20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -652,22 +654,14 @@ it might delete some of the astrophysical signal of interest.</p>
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="stderr output_area docutils container">
-<div class="highlight"><pre>
-100%|██████████| 1/1 [00:00&lt;00:00,  2.79it/s]
-</pre></div></div>
-</div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [15]:
+<span></span>In [25]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">lc_net</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;C0&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;With Motion&#39;</span><span class="p">)</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">lc_corr</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;C3&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Motion Corrected&#39;</span><span class="p">);</span>
+<span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">lc_net</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;With Motion&#39;</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">lc_corr</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Motion Corrected&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -679,13 +673,13 @@ it might delete some of the astrophysical signal of interest.</p>
 </div>
 </div>
 <p>The SFF method appears to do virtually nothing at all! There are
-probably two primary reasons– Our large aperture has captured all of the
-FELT + host galaxy flux, so the jitter motion has been subdued to the
-point where SFF has little or no constraining power. A second effect is
-that large extended objects compensate for flux loss with equal parts of
-flux gain: flux from the right of the boundary enters when flux from the
-left exits. This effect subdues the common jig-saw pattern attributable
-to flux overflowing the pixel mask.</p>
+probably two primary reasons– Our large aperture has captured all of
+the FELT + host galaxy flux, so the jitter motion has been subdued to
+the point where SFF has little or no constraining power. A second effect
+is that large extended objects compensate for flux loss with equal parts
+of flux gain: flux from the right of the boundary enters when flux from
+the left exits. This effect subdues the common jig-saw pattern
+attributable to flux overflowing the pixel mask.</p>
 <p>It’s conceivable—and likely— that fine tuning the SFF parameters and
 pixel mask size would result in a higher signal-to-noise ratio
 lightcurve. We are presently accepting lots of <em>variance</em> for the
@@ -703,7 +697,7 @@ purpose of limiting <em>bias</em>.</p>
         <a href="section3.html" class="btn btn-neutral float-right" title="Extracting lightcurves" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="2.09-how-to-use-lightkurve-for-asteroseismology.html" class="btn btn-neutral" title="How to use lightkurve for asteroseismology?" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="2.09-how-to-use-lightkurve-for-asteroseismology.html" class="btn btn-neutral" title="How to use lightkurve for asteroseismology" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -712,7 +706,7 @@ purpose of limiting <em>bias</em>.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright lightkurve developers and contributors.
+        &copy; Copyright lightkurve developers and contributors
 
     </p>
   </div>
@@ -731,21 +725,24 @@ purpose of limiting <em>bias</em>.</p>
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'1.0b13',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'1.0b21',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 

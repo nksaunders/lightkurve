@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Systematics correction classes &mdash; lightkurve 1.0b13 documentation</title>
+  <title>Systematics correction classes &mdash; lightkurve 1.0b21 documentation</title>
   
 
   
@@ -29,7 +29,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="KeplerCBVCorrector" href="lightkurve.correctors.KeplerCBVCorrector.html" />
-    <link rel="prev" title="TessLightCurveFile" href="lightkurve.lightcurvefile.TessLightCurveFile.html" /> 
+    <link rel="prev" title="Periodogram" href="lightkurve.periodogram.Periodogram.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                1.0b13
+                1.0b21
               </div>
             
           
@@ -90,9 +90,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">API documentation</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="targetpixelfile.html">TargetPixelFile classes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lightcurve.html">LightCurve classes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lightcurvefile.html">LightCurveFile classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="targetpixelfile.html">TargetPixelFile classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="search.html">Data search functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="periodogram.html">Periodogram classes</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Systematics correction classes</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#classes">Classes</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="lightkurve.correctors.KeplerCBVCorrector.html">KeplerCBVCorrector</a></li>
@@ -117,6 +119,7 @@
 <p class="caption"><span class="caption-text">About lightkurve</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing and reporting issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer.html">Developer documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing and acknowledging lightkurve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../other_software.html">Other software</a></li>
 </ul>
@@ -226,11 +229,13 @@
 </div>
 <div class="section" id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Permalink to this headline">¶</a></h2>
-<img src="../_images/inheritance-1f8ea850fadaaa82abfbb155a1227eb7631eee34.png" alt="Inheritance diagram of lightkurve.correctors.KeplerCBVCorrector, lightkurve.correctors.SFFCorrector" usemap="#inheritancea288947b7e" class="inheritance"/>
-<map id="inheritancea288947b7e" name="inheritancea288947b7e">
-<area shape="rect" id="node1" href="lightkurve.correctors.KeplerCBVCorrector.html#lightkurve.correctors.KeplerCBVCorrector" target="_top" title="Remove systematic trends from Kepler light curves by fitting" alt="" coords="5,55,156,80"/>
-<area shape="rect" id="node2" href="lightkurve.correctors.SFFCorrector.html#lightkurve.correctors.SFFCorrector" target="_top" title="Implements the Self&#45;Flat&#45;Fielding (SFF) systematics removal method." alt="" coords="29,5,133,31"/>
-</map></div>
+digraph inheritancea288947b7e {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;KeplerCBVCorrector&quot; [URL=&quot;lightkurve.correctors.KeplerCBVCorrector.html#lightkurve.correctors.KeplerCBVCorrector&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;Remove systematic trends from Kepler light curves by fitting&quot;];
+  &quot;SFFCorrector&quot; [URL=&quot;lightkurve.correctors.SFFCorrector.html#lightkurve.correctors.SFFCorrector&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;Implements the Self-Flat-Fielding (SFF) systematics removal method.&quot;];
+}
+</div>
 </div>
 
 
@@ -244,7 +249,7 @@
         <a href="lightkurve.correctors.KeplerCBVCorrector.html" class="btn btn-neutral float-right" title="KeplerCBVCorrector" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="lightkurve.lightcurvefile.TessLightCurveFile.html" class="btn btn-neutral" title="TessLightCurveFile" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="lightkurve.periodogram.Periodogram.html" class="btn btn-neutral" title="Periodogram" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -253,7 +258,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright lightkurve developers and contributors.
+        &copy; Copyright lightkurve developers and contributors
 
     </p>
   </div>
@@ -272,21 +277,24 @@
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'1.0b13',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'1.0b21',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 

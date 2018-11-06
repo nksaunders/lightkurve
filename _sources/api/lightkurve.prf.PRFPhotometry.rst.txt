@@ -10,10 +10,10 @@ PRFPhotometry
 
    .. autosummary::
 
-      ~PRFPhotometry.fit
-      ~PRFPhotometry.get_residuals
+      ~PRFPhotometry.plot_results
+      ~PRFPhotometry.run
 
    .. rubric:: Methods Documentation
 
-   .. automethod:: fit
-   .. automethod:: get_residuals
+   .. automethod:: plot_results
+   .. automethod:: run
