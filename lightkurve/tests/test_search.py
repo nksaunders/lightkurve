@@ -1,5 +1,6 @@
 from __future__ import division, print_function
 
+import os
 import pytest
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
@@ -8,7 +9,8 @@ from astropy.coordinates import SkyCoord
 import astropy.units as u
 
 from ..search import search_lightcurvefile, search_targetpixelfile, SearchError, open
-from ..targetpixelfile import KeplerTargetPixelFile
+from ..targetpixelfile import KeplerTargetPixelFile, TessTargetPixelFile
+from ..lightcurvefile import KeplerLightCurveFile, TessLightCurveFile
 
 
 @pytest.mark.remote_data
@@ -134,8 +136,7 @@ def test_open():
     tesstpf = open(tess_path)
     assert isinstance(tesstpf, TessTargetPixelFile)
     try:
-        open(os.path.dirname(os.path.abspath(__file__)) +
-                  '/data/test_factory0.fits')
+        open(os.path.dirname(os.path.abspath(__file__)) + '/data/test_factory0.fits')
     except ValueError:
         pass
     assert isinstance(KeplerTargetPixelFile(tess_path), KeplerTargetPixelFile)
