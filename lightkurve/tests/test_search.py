@@ -7,7 +7,7 @@ from numpy.testing import assert_almost_equal, assert_array_equal
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 
-from ..search import search_lightcurvefile, search_targetpixelfile, SearchError
+from ..search import search_lightcurvefile, search_targetpixelfile, SearchError, open
 from ..targetpixelfile import KeplerTargetPixelFile
 
 
@@ -125,3 +125,18 @@ def test_source_confusion():
     desired_target = 6507433
     tpf = search_targetpixelfile(desired_target, quarter=8).download()
     assert tpf.targetid == desired_target
+
+def test_open():
+    k2_path = os.path.dirname(os.path.abspath(__file__)) + '/data/test-tpf-star.fits'
+    tess_path = os.path.dirname(os.path.abspath(__file__)) + '/data/tess25155310-s01-first-cadences.fits.gz'
+    k2tpf = open(k2_path)
+    assert isinstance(k2tpf, KeplerTargetPixelFile)
+    tesstpf = open(tess_path)
+    assert isinstance(tesstpf, TessTargetPixelFile)
+    try:
+        open(os.path.dirname(os.path.abspath(__file__)) +
+                  '/data/test_factory0.fits')
+    except ValueError:
+        pass
+    assert isinstance(KeplerTargetPixelFile(tess_path), KeplerTargetPixelFile)
+    assert isinstance(TessTargetPixelFile(k2_path), TessTargetPixelFile)
