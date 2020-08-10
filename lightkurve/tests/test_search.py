@@ -7,7 +7,6 @@ if no internet connection is available.
 """
 import os
 import pytest
-import warnings
 
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
@@ -18,13 +17,10 @@ from astropy.coordinates import SkyCoord
 import astropy.units as u
 from astropy.table import Table
 
-from ..utils import LightkurveWarning, LightkurveDeprecationWarning
+from ..utils import LightkurveWarning, LightkurveError
 from ..search import search_lightcurve, search_targetpixelfile, \
                      search_tesscut, SearchResult, SearchError, log
-from ..io import read
 from .. import KeplerTargetPixelFile, TessTargetPixelFile, TargetPixelFileCollection
-
-from .. import PACKAGEDIR
 
 
 @pytest.mark.remote_data
@@ -38,7 +34,27 @@ def test_search_targetpixelfile():
     # ...including quarter 11 but not 12:
     assert(len(search_targetpixelfile('KIC 11904151', mission='Kepler', quarter=11).unique_targets) == 1)
     assert(len(search_targetpixelfile('KIC 11904151', mission='Kepler', quarter=12).table) == 0)
-    # should work for all split campaigns
+    search_targetpixelfile('KIC 11904151', quarter=11).download()
+    # with mission='TESS', it should return TESS observations
+    tic = 'TIC 273985862'  # Has been observed in multiple sectors including 1
+    assert(len(search_targetpixelfile(tic, mission='TESS').table) > 1)
+    assert(len(search_targetpixelfile(tic, mission='TESS', sector=1, radius=100).table) == 2)
+    search_targetpixelfile(tic, mission='TESS', sector=1).download()
+    assert(len(search_targetpixelfile("pi Mensae", sector=1).table) == 1)
+    # Issue #445: indexing with -1 should return the last index of the search result
+    assert(len(search_targetpixelfile("pi Men")[-1]) == 1)
+
+
+# The test below currently fail because the MAST portal does not consistently
+# assign `sequence_number` at the time of writing, i.e.
+# * C91 and C91 appear bundled into one observation with sequence number "91" (example: EPIC 228162462)
+# * C101 and C102 appear bundled together with sequence number "10" (example: EPIC 228726301)
+# * C111 and C112 appear as *separate* observations with sequence numbers "111" and "112" (example: EPIC 202975993)
+# This issue is expected to be resolved by September 2020, at which point
+# we should try and revive this test.
+@pytest.mark.xfail
+def test_search_split_campaigns():
+    """Searches should should work for split campaigns."""
     campaigns = [[91, 92, 9], [101, 102, 10], [111, 112, 11]]
     ids = ['EPIC 228162462', 'EPIC 228726301', 'EPIC 202975993']
     for c, idx in zip(campaigns, ids):
@@ -50,15 +66,6 @@ def test_search_targetpixelfile():
         # If you specify the whole campaign, both split parts must be returned.
         cc = search_targetpixelfile(idx, campaign=c[2]).table
         assert(len(cc) == 2)
-    search_targetpixelfile('KIC 11904151', quarter=11).download()
-    # with mission='TESS', it should return TESS observations
-    tic = 'TIC 273985862'  # Has been observed in multiple sectors including 1
-    assert(len(search_targetpixelfile(tic, mission='TESS').table) > 1)
-    assert(len(search_targetpixelfile(tic, mission='TESS', sector=1, radius=100).table) == 2)
-    search_targetpixelfile(tic, mission='TESS', sector=1).download()
-    assert(len(search_targetpixelfile("pi Mensae", sector=1).table) == 1)
-    # Issue #445: indexing with -1 should return the last index of the search result
-    assert(len(search_targetpixelfile("pi Men")[-1]) == 1)
 
 
 @pytest.mark.remote_data
@@ -215,9 +222,9 @@ def test_source_confusion():
     # When obtaining the TPF for target 6507433, @benmontet noticed that
     # a target 4 arcsec away was returned instead.
     # See https://github.com/KeplerGO/lightkurve/issues/148
-    desired_target = 6507433
+    desired_target = "KIC 6507433"
     tpf = search_targetpixelfile(desired_target, quarter=8).download()
-    assert tpf.targetid == desired_target
+    assert tpf.targetid == 6507433
 
 
 def test_empty_searchresult():
@@ -229,30 +236,6 @@ def test_empty_searchresult():
         sr.download()
     with pytest.warns(LightkurveWarning, match='empty search'):
         sr.download_all()
-
-
-def test_open():
-    from ..io import open
-    with warnings.catch_warnings():  # lk.open is deprecated
-        warnings.simplefilter("ignore", LightkurveDeprecationWarning)
-        # define paths to k2 and tess data
-        k2_path = os.path.join(PACKAGEDIR, "tests", "data", "test-tpf-star.fits")
-        tess_path = os.path.join(PACKAGEDIR, "tests", "data", "tess25155310-s01-first-cadences.fits.gz")
-        # Ensure files are read in as the correct object
-        k2tpf = open(k2_path)
-        assert(isinstance(k2tpf, KeplerTargetPixelFile))
-        tesstpf = open(tess_path)
-        assert(isinstance(tesstpf, TessTargetPixelFile))
-        # Open should fail if the filetype is not recognized
-        try:
-            open(os.path.join(PACKAGEDIR, "data", "lightkurve.mplstyle"))
-        except (ValueError, IOError):
-            pass
-        # Can you instantiate with a path?
-        assert(isinstance(KeplerTargetPixelFile(k2_path), KeplerTargetPixelFile))
-        assert(isinstance(TessTargetPixelFile(tess_path), TessTargetPixelFile))
-        # Can open take a quality_bitmask argument?
-        assert(open(k2_path, quality_bitmask='hard').quality_bitmask == 'hard')
 
 
 @pytest.mark.remote_data
@@ -275,7 +258,6 @@ def test_corrupt_download_handling():
 
     This is a regression test for #511.
     """
-    from builtins import open  # Because open is imported as lightkurve.open at the top
     with tempfile.TemporaryDirectory() as tmpdirname:
         # Pretend a corrupt file exists at the expected cache location
         expected_dir = os.path.join(tmpdirname,
@@ -285,22 +267,16 @@ def test_corrupt_download_handling():
         expected_fn = os.path.join(expected_dir, "kplr011904151-2010009091648_lpd-targ.fits.gz")
         os.makedirs(expected_dir)
         open(expected_fn, 'w').close()  # create "corrupt" i.e. empty file
-        with pytest.raises(SearchError) as err:
+        with pytest.raises(LightkurveError) as err:
             search_targetpixelfile("Kepler-10", quarter=4).download(download_dir=tmpdirname)
-        assert "The file was likely only partially downloaded." in err.value.args[0]
-
-
-def test_filenotfound():
-    """Regression test for #540; ensure lk.read() yields `FileNotFoundError`."""
-    with pytest.raises(FileNotFoundError):
-        read("DOESNOTEXIST")
+        assert "may be corrupt" in err.value.args[0]
 
 
 @pytest.mark.remote_data
 def test_indexerror_631():
     """Regression test for #631; avoid IndexError."""
     # This previously triggered an exception:
-    result = search_lightcurve("KIC 8462852", sector=15)
+    result = search_lightcurve("KIC 8462852", sector=15, radius=1)
     assert len(result) == 1
 
 
@@ -314,3 +290,31 @@ def test_name_resolving_regression_764():
     c1 = MastClass().resolve_object(objectname="EPIC250105131")
     c2 = MastClass().resolve_object(objectname="EPIC 250105131")
     assert c1.separation(c2).to("arcsec").value < 0.1
+
+
+@pytest.mark.remote_data
+def test_overlapping_targets_718():
+    """Regression test for #718."""
+    # Searching for the following targets without radius should only return
+    # the requested targets, not their overlapping neighbors.
+    targets = ['KIC 5112705', 'KIC 10058374', 'KIC 5385723']
+    for target in targets:
+        search = search_lightcurve(target, quarter=11)
+        assert len(search) == 1
+        assert search.target_name[0] == f'kplr{target[4:].zfill(9)}'
+
+    # When using `radius=1` we should also retrieve the overlapping targets
+    search = search_lightcurve('KIC 5112705', quarter=11, radius=1*u.arcsec)
+    assert len(search) > 1
+
+    # Searching by `target_name` should not preven a KIC identifier to work
+    # in a TESS data search
+    search = search_targetpixelfile('KIC 8462852', mission='TESS', sector=15)
+    assert len(search) == 1
+
+
+@pytest.mark.remote_data
+def test_tesscut_795():
+    """Regression test for #795: make sure the __repr__.of a TESSCut
+    SearchResult works."""
+    str(search_tesscut('KIC 8462852'))  # This raised a KeyError
